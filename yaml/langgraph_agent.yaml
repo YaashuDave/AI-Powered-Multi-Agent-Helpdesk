@@ -1,0 +1,26 @@
+# yaml/langgraph_agent.yaml
+name: langgraph_agent
+description: |
+  Validation & SLA enforcement agent. Receives intermediate outputs (retrieval,
+  ADK enrichment, troubleshooting), validates them for completeness, checks SLA
+  thresholds and flag potential hallucinations. Returns structured decision.
+
+listen_message_types:
+  - retrieval_ready
+  - adk_context
+  - troubleshoot_done
+
+send_message_type: validation_result
+target_receiver: monitor_agent
+
+rules:
+  - id: must_have_ticket_id
+    description: "All messages must carry ticket_id"
+    type: strict
+  - id: max_steps
+    description: "Troubleshoot steps must be <= 8"
+    type: numeric
+    threshold: 8
+  - id: no_hallucination_keywords
+    description: "Result must not contain uncertain tokens like 'maybe', 'could be' as definitive claims"
+    type: text_check
