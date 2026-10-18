@@ -1,6 +1,6 @@
 # 🤖 AI-Powered Multi-Agent Helpdesk System
 
-An intelligent, multi-agent IT helpdesk system that automates support ticket resolution using **CrewAI**, **LangGraph**, an **ADK-style** enrichment agent, **MCP (Model Context Protocol)**, and **Agent-to-Agent (A2A)** communication — all orchestrated through a central coordinator and powered by local LLMs via **Ollama**.
+An intelligent, multi-agent IT helpdesk system that automates support ticket resolution using **CrewAI**, **LangGraph**, an **ADK-style** enrichment agent, **MCP (Model Context Protocol)**, and **Agent-to-Agent (A2A)** communication —> all orchestrated through a central coordinator and powered by local LLMs via **Ollama**.
 
 ---
 
