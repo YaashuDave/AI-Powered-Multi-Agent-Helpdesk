@@ -1,0 +1,9 @@
+# adk_agents/search_agent.yaml
+name: search_adk_agent
+description: |
+  ADK-style semantic enrichment agent: enhances triage summaries with
+  root cause guesses, related issues, missing info and recommendations.
+listen_message_type: triage_enhance
+send_message_type: adk_context
+target_receiver: knowledge_agent
+ollama_model: gemma:2b

@@ -4,7 +4,7 @@ import threading
 import queue
 from typing import Dict, Any, Optional, Set
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # ------------------------------------------
@@ -15,7 +15,7 @@ class A2AMessage(BaseModel):
     receiver: str
     type: str
     payload: Dict[str, Any]
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 # ------------------------------------------
