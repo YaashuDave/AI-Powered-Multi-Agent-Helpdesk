@@ -1,6 +1,12 @@
-# 🤖 AI-Powered Multi-Agent Helpdesk System
+# 🤖 AI-Powered Multi-Agent Helpdesk
+
+[![tests](https://github.com/YaashuDave/AI-Powered-Multi-Agent-Helpdesk/actions/workflows/tests.yml/badge.svg)](https://github.com/YaashuDave/AI-Powered-Multi-Agent-Helpdesk/actions/workflows/tests.yml)
+![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 An intelligent, multi-agent IT helpdesk system that automates support ticket resolution using **CrewAI**, **LangGraph**, an **ADK-style** enrichment agent, **MCP (Model Context Protocol)**, and **Agent-to-Agent (A2A)** communication —> all orchestrated through a central coordinator and powered by local LLMs via **Ollama**.
+
+![Streamlit UI: a login ticket resolved by the agent pipeline](docs/screenshot.png)
 
 ---
 
@@ -14,6 +20,7 @@ An intelligent, multi-agent IT helpdesk system that automates support ticket res
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [How It Works](#how-it-works)
+- [Testing](#testing)
 - [Configuration](#configuration)
 - [Maintainer](#maintainer)
 - [License](#license)
@@ -109,15 +116,18 @@ The agents are built on different frameworks (CrewAI, LangGraph and a lightweigh
 ## Project Structure
 
 ```
-AI-enabled-HelpDesk/
+AI-Powered-Multi-Agent-Helpdesk/
 │
 ├── main.py                    # CLI entry point (starts MCP + Coordinator)
 ├── streamlit_app.py           # Streamlit Web UI
 ├── monitor.py                 # Monitor agent — writes final output
 ├── create_db.py               # Seeds the SQLite knowledge base
-├── test_runner.py             # Test runner script
+├── test_runner.py             # Runs the validation agent on its own
 ├── coordinator_input.txt      # Ticket hand-off file (runtime, gitignored)
 ├── requirements.txt           # Python dependencies
+├── requirements-dev.txt       # + test dependencies
+├── pytest.ini
+├── LICENSE
 ├── .gitignore
 │
 ├── coordinator/
@@ -143,6 +153,16 @@ AI-enabled-HelpDesk/
 │
 ├── mcp_server/                # MCP Tool Server (FastAPI)
 │   └── mcp_server.py
+│
+├── tests/                     # Offline test suite (stub Ollama + real MCP server)
+│   ├── fake_ollama.py
+│   └── test_*.py
+│
+├── docs/
+│   └── screenshot.png
+│
+├── .github/workflows/
+│   └── tests.yml              # CI: runs the tests on every push
 │
 ├── tools/                     # Shared tools exposed via MCP
 │   ├── sqlite_tool.py
@@ -192,8 +212,8 @@ AI-enabled-HelpDesk/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YaashuDave/AI-enabled-HelpDesk.git
-   cd AI-enabled-HelpDesk
+   git clone https://github.com/YaashuDave/AI-Powered-Multi-Agent-Helpdesk.git
+   cd AI-Powered-Multi-Agent-Helpdesk
    ```
 
 2. **Create a virtual environment**
@@ -254,6 +274,14 @@ Enter issue: I cannot log in to my account
 Agents processing...
 ```
 
+### Option 3 — Try it without Ollama
+
+A stub that returns canned agent responses ships with the tests. Start it instead of Ollama, then run either option above:
+
+```bash
+python tests/fake_ollama.py
+```
+
 ---
 
 ## How It Works
@@ -270,6 +298,19 @@ Agents processing...
 10. **Monitor Agent** merges the decision, validations and any agent errors into `output/final.json`, `output/final.md` and `output/tickets/<ticket_id>.*`. If an agent fails, the ticket is reported and marked for escalation.
 
 > **Note:** CrewAI is used for the agent definitions (role, goal, backstory); each agent's LLM call is routed straight to Ollama (`utils/ollama_patch.py`). The Search Agent is a small ADK-style runtime written for this project, not the `google-adk` package. Web search is mocked.
+
+---
+
+## Testing
+
+The test suite runs fully offline: it starts a stub Ollama and the real MCP server on free ports, then exercises the A2A bus, KB search, file-parser sandboxing, the LangGraph validation graph, the monitor and a full ticket through every agent.
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+GitHub Actions runs the same suite on Python 3.11 and 3.12 for every push.
 
 ---
 
@@ -292,6 +333,7 @@ Environment variables:
 | `OLLAMA_URL`       | `http://localhost:11434`   | Ollama server                              |
 | `OLLAMA_MODEL`     | `gemma:2b`                 | Model used by every agent                  |
 | `OLLAMA_TIMEOUT`   | `300`                      | Seconds to wait for one LLM response       |
+| `OLLAMA_JSON`      | `1`                        | Ask Ollama for JSON-only output (`0` to disable) |
 | `MCP_URL`          | `http://localhost:8001/call_tool` | Tool server endpoint used by agents |
 | `MCP_HOST` / `MCP_PORT` | `127.0.0.1` / `8001`  | Tool server bind address                   |
 | `ADK_WAIT_SECONDS` | `120`                      | How long the Knowledge Agent waits for ADK context |
@@ -333,4 +375,4 @@ A **FastAPI** server (`mcp_server/mcp_server.py`) that exposes shared tools:
 
 ## License
 
-This project is for educational and demonstration purposes.
+Released under the [MIT License](LICENSE).
